@@ -26,7 +26,7 @@ def area_spike_rater_resp(session_num,area):
   dt = dat['bin_size'] # binning at 10 ms
   NT = dat['spks'].shape[-1]
 
-  stacked_neurons=np.stack([dat['spks'][i,:,:] for i in range(len(to_see[0]))])
+  stacked_neurons=np.stack([dat['spks'][i,:,:] for i in range(len(neurons_to_see[0]))])
 
 
   plt.plot(dt * np.arange(NT), 1/dt * stacked_neurons[:,response>=0].mean(axis=(0,1))); # left responses # I will try to add boolean logic in this code
