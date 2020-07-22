@@ -25,18 +25,25 @@ def arrange_session(dat):
     new_dat['response_times'] = dat['trials.response_times']
     new_dat['response'] = dat['trials.response_choice']
     new_dat['feedback_times'] = dat['trials.feedback_times']
-    new_dat['feedback_type'] = dat['trials.feedvackType']
+    new_dat['feedback_type'] = dat['trials.feedbackType']
     new_dat['wheel'] = dat['wheel.position']
     new_dat['pupil'] = dat['eye.xyPos']
     # new_dat['lfp'] = dat[]
     # dat['brain_area_lfp'] = dat[]
     new_dat['trough_to_peak'] = dat['spikes.amps']
     new_dat['lick_times'] = dat['licks.times']
+
     return new_dat
 
 
+def random_session(data_fold):
+    folds = os.listdir(data_fold)
+    session_num = np.random.randint(len(folds))
+    return os.path.join(data_fold, folds[session_num])
+
 
 if __name__ == "__main__":
-    folder = 'C:\\Users\\User\\Documents\\GitHub\\NeuromatchGroup126A\\Data\\Forssmann_2017-11-04'
-    dat = load_session(folder)
+    data_fold = 'C:\\Users\\User\\Documents\\GitHub\\NeuromatchGroup126A\\Data'
+    fold = random_session(data_fold)
+    dat = load_session(fold)
     dat = arrange_session(dat)
