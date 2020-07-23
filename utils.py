@@ -35,12 +35,13 @@ def arrange_session(dat, bin_size=10):
     new_dat['bin_size'] = bin_size 
     clusters = dat['spikes.clusters']
     spks = dat['spikes.times']  # general, not devided by neurons
+    new_dat['intervals'] = dat['trials.intervals']
     # new_dat['spks'] = dat['spikes.times']
     # an numpy array of arrays contaning spike times for each neuron
     new_dat['spike_times'], new_dat['spks'] = divide_to_trials(dat, bin_size)
     new_dat['brain_areas'] = np.asarray(dat['channels.brainLocation']['allen_ontology'].values)
     new_dat['contrast_right'] = dat['passiveVisual.contrastRight']
-    new_dat['contrast_Left'] = dat['passiveVisual.contrastLeft']
+    new_dat['contrast_left'] = dat['passiveVisual.contrastLeft']
     new_dat['gocue'] = dat['trials.goCue_times']
     new_dat['response_times'] = dat['trials.response_times']
     new_dat['response'] = dat['trials.response_choice']
