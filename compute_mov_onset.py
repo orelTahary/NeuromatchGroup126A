@@ -39,6 +39,7 @@ for i in trials_interval:
 
   if len(idx)==0:
     mov_onset.append(50000) 
+    trial_NoWheel.append(i)
     direction.append(0)
   else:
     mov_onset.append(idx[0]*10) #in ms
