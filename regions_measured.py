@@ -1,3 +1,5 @@
+import numpy as np
+
 def regions_measured(session_num):
   '''
   Checks which brain areas were recorded from given session.
