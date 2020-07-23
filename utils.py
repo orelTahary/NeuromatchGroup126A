@@ -17,6 +17,7 @@ def divide_to_trials(dat, bin_size):
             spk_time_by_session[k,j,:] = np.histogram(n, bins=int(max_interval//bin_ms))[0]
     return spks_by_neuron, spk_time_by_session
 
+
 def load_session(folder):
     dat = {}
     files = os.listdir(folder)
@@ -36,7 +37,6 @@ def arrange_session(dat, bin_size=10):
     clusters = dat['spikes.clusters']
     spks = dat['spikes.times']  # general, not devided by neurons
     new_dat['intervals'] = dat['trials.intervals']
-    # new_dat['spks'] = dat['spikes.times']
     # an numpy array of arrays contaning spike times for each neuron
     new_dat['spike_times'], new_dat['spks'] = divide_to_trials(dat, bin_size)
     new_dat['brain_areas'] = np.asarray(dat['channels.brainLocation']['allen_ontology'].values)
@@ -70,4 +70,4 @@ if __name__ == "__main__":
     data_fold = 'C:\\Users\\User\\Documents\\GitHub\\NeuromatchGroup126A\\Data'
     fold = random_session(data_fold)
     dat = load_session(fold)
-    dat = arrange_session(dat)
+    dat = arrange_session(dat, bin_size=10) # bin_size in milliseconds
