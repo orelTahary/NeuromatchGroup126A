@@ -17,7 +17,7 @@ trials_interval=np.array([5, 6, 7, 8, 9])#np.array(range(0,340))
 # Initialization
 n_trials=len(trials_interval)
 mov_onset=np.zeros(n_trials)  #sample where the wheel is above the threshold for the first time; No turn-> mov_onset = 0
-direction=np.zeros(n_trials) #<0 right; =0 No turn, >0 left
+direction=np.zeros(n_trials) #<0 chosoe right (move left?); =0 No turn; >0 choose left (turn right?)
 onset_gocue=np.zeros(n_trials) #<0 before gocue; =0 No turn, >0 after gocue
 
 j=0
