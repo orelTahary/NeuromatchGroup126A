@@ -12,7 +12,7 @@ sample_stim=50 # sample where the stimulus occured (-> after 500ms, bin time=10 
 # # Threshold for considering the 'wheel as turned' 
 threshold=5
 # the trials that you want to consider
-trials_interval=np.array(range(0,340))  
+trials_interval=np.array(range(0,feed_time.shape[0]))  
 
 # Initialization
 n_trials=len(trials_interval)
