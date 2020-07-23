@@ -26,7 +26,7 @@ trials_interval=np.array(range(0,340))
 
 # Initialization
 n_trials=len(trials_interval)
-mov_onset=[] #time in ms of when the mice moves for the first time the wheel given the threshold above
+mov_onset=[] #time in ms of when the mice moves for the first time the wheel given the threshold above -> NO MOVEMENT value = 50000
 trial_NoWheel=[] #indeces of the trials where the mice did not turn the wheel 
 direction=[] #<0 choose right (turn left?); =0 No turn; >0 choose left (turn right?);
 onset_gocue=[] #<0 before gocue; >0 after gocue
@@ -38,7 +38,7 @@ for i in trials_interval:
   idx=np.argwhere(abs(wheel_trial)>threshold) # index when the wheel is more turned than the threshold
 
   if len(idx)==0:
-    trial_NoWheel.append(i)
+    mov_onset.append(50000) 
     direction.append(0)
   else:
     mov_onset.append(idx[0]*10) #in ms
