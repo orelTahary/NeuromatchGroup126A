@@ -40,11 +40,11 @@ def arrange_session(dat, bin_size=10):
     # an numpy array of arrays contaning spike times for each neuron
     new_dat['spike_times'], new_dat['spks'] = divide_to_trials(dat, bin_size)
     new_dat['brain_areas'] = np.asarray(dat['channels.brainLocation']['allen_ontology'].values)
-    new_dat['contrast_right'] = dat['passiveVisual.contrastRight']
-    new_dat['contrast_left'] = dat['passiveVisual.contrastLeft']
+    new_dat['contrast_right'] = dat['trials.visualStim_contrastRight'].reshape(-1,)
+    new_dat['contrast_left'] = dat['trials.visualStim_contrastLeft'].reshape(-1,)
     new_dat['gocue'] = dat['trials.goCue_times']
     new_dat['response_times'] = dat['trials.response_times']
-    new_dat['response'] = dat['trials.response_choice']
+    new_dat['response'] = dat['trials.response_choice'].reshape(-1,)
     new_dat['feedback_times'] = dat['trials.feedback_times']
     new_dat['feedback_type'] = dat['trials.feedbackType']
     new_dat['wheel'] = dat['wheel.position']
