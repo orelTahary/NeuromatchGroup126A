@@ -1,57 +1,22 @@
-#NEED dat nareas, barea,dat['spks']
+#script for GLM: what is needed is mov_onset,dat['spks'],barea,nareas
 
+import statsmodels.api as sm
 
-# Extract the spike counts 
+idx_notzero = np.argwhere(mov_onset != 0)
+new_mov_onset = mov_onset[mov_onset != 0]
+
+print(dat['spks'].shape)
 for j in range(nareas):
-  spikes = np.array(1/dt * dat['spks'][barea==j].mean(axis=0))
-  if (j == 0):
-    freq_spks = spikes
-  else:
-    freq_spks = np.dstack((freq_spks,spikes)) #structure: trials,samples,areas
+  new_dat = dat['spks'][:,idx_notzero[:,0],:]
+  new_dat_onearea = new_dat[barea == j]
+  model = sm.GLM(new_mov_onset, new_dat_onearea.mean(0), family=sm.families.Poisson())
+  results = model.fit()
 
-output= mov_onset #what we wanted to predict
-
-
-d=25 #padding window ??????????????
-# Build the full design matrix from a feature of each spike train
-for j in range(nareas): #for each brain region
-  
-  peak_freq=freq_spks[:,:,j]
-  idx = np.argmax(peak_freq, axis = 1) #peak frequency index (I took a dontknowifmeaningful feature of a spike train)
-  if j==0:
-    input=[idx]
-  else: 
-    input = np.vstack([input,[idx]])
-
-
-  padded_input = np.concatenate([np.zeros(d - 1), input[j]])
-  
-  # Construct a matrix where each row has the d frames of the input proceeding and including timepoint t
-  T = len(input[j])  # Total number of timepoints 
-  X = np.zeros((T, d))
-  for t in range(T):
-      X[t] = padded_input[t:t + d]
-  y = output
-  constant = np.ones_like(y) #bias???
-  X = np.column_stack([constant, X])
-  # Get the MLE weights for the LG model
-  theta = np.linalg.inv(X.T @ X) @ X.T @ y
-  if (j == 0):
-    theta_lg = np.array(theta[1:])
-    yhat = X @ theta
-  else:
-    theta_lg = np.vstack((theta_lg,np.array(theta[1:])))
-    yhat = np.vstack((yhat,X @ theta))
-
-for j in range(nareas):
-   ax = plt.subplot(3,nareas,j+1)
-   plt.title(regions[j])
-   if np.sum(barea==j)==0:
-     continue
-   plt.plot(yhat[j])
-   plt.subplot(3,nareas,j+1+4)
-   plt.title('Prediction')
-   plt.plot(y)
-   plt.subplot(3,nareas,j+1+8)
-   plt.plot(abs(y-yhat[j]))
-   plt.title('Abs Error')
+  #print(results.summary())
+  ax = plt.subplot(2,nareas,j+1)
+  plt.title(regions[j])
+  plt.plot(model.predict(results.params))
+  plt.plot(new_mov_onset)
+  ax = plt.subplot(2,nareas,j+1+4)
+  plt.title(regions[j])
+  plt.plot(model.predict(results.params)-new_mov_onset)
