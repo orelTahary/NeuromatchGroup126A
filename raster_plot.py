@@ -1,3 +1,6 @@
+import numpy as np
+from matplotlib import pyplot as plt
+
 def raster_plot(session_num,region,trial_num):
   '''
   Creates spike data and makes raster plot given session number, brain area and trial number 
@@ -31,13 +34,18 @@ def raster_plot(session_num,region,trial_num):
     neurons_spikes_times=neurons_spikes*(dt)*(np.arange(len(neurons_spikes[0]))) # determining spikes times
     
 
-  for i in range(neurons_spikes_times.shape[0]):
+  for i in range(neurons_spikes_times.shape[0]): # Fixing the problems with the data -- some points are doubled than original value i.e expected: 2.23 seen: 4.46 -- 
     for j in range(neurons_spikes_times.shape[1]):
       if neurons_spikes_times[i,j]*100==2*j:
         neurons_spikes_times[i,j]=neurons_spikes_times[i,j]/2
   
   plt.eventplot(neurons_spikes_times,linelengths=0.3) # raster plot
 
-    
-
   return neurons_spikes_times
+
+
+# Check the function by uncommenting the next line
+# Checking for 12th session, 256th trials' subiculum(SUB) neurons firing
+# raster_plot(11,'SUB',256)
+
+# Issues: spikes at 0s;  spikes after 2.5s
