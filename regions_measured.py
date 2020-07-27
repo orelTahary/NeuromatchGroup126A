@@ -8,7 +8,6 @@ def regions_measured(session_num):
   session_num: number of the session (0,38)
 
   Output: 
-  regions: gives every recorded areas session by session
   sessions_regions: brains areas that recording had been taken
 
   '''
