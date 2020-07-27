@@ -45,7 +45,7 @@ def raster_plot(session_num,region,trial_num):
 
 
 # Check the function by uncommenting the next line
-# Checking for 12th session, 256th trials' subiculum(SUB) neurons firing
+# Checking for 12th session, 256th trial's subiculum(SUB) neurons firing
 # raster_plot(11,'SUB',256)
 
-# Issues: spikes at 0s;  spikes after 2.5s
+# Issues: spikes at 0s (not solved);  spikes after 2.5s (solved)
