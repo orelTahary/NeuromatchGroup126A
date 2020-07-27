@@ -100,15 +100,22 @@ def plot_mov_onset(dat, trial_num):
 def spikes_before_mov_onset(dat, n_bins=50):
     
     spks_trials_moving = np.delete(dat['spks'],dat['trials_NoWheel'], axis=1)
-    spks_b4_mov = np.zeros(spks_trials_moving.shape, dtype=bool)
     mov_onset = np.delete(dat['mov_onset'],dat['trials_NoWheel'])
-    n_trials = spks_b4_mov.shape[1]
-    for trial in range(n_trials):
-        onset = mov_onset[trial]
-        spks_b4_mov[:,trial,int(onset-n_bins):int(onset)] = True
+    n_trials = spks_trials_moving.shape[1]
+    for i in range(n_trials):
+        onset = mov_onset[i]
+        if i == 0:
+            spks_b4_mov = spks_trials_moving[:,i,int(onset-n_bins):int(onset)].reshape(-1,1,50)
+        else:
+            trial = spks_trials_moving[:,i,int(onset-n_bins):int(onset)].reshape(-1,1,50)
+            spks_b4_mov = np.hstack((spks_b4_mov,trial))
+
     
-    dat['spks_b4_mov'] = spks_trials_moving[spks_b4_mov]
+    dat['spks_b4_mov'] = spks_b4_mov
     return dat
+
+    
+
 
 if __name__ == "__main__":
 
