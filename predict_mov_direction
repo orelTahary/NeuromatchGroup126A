@@ -1,0 +1,109 @@
+import statsmodels.api as sm
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import classification_report, confusion_matrix
+
+from matplotlib import rcParams 
+from matplotlib import pyplot as plt
+import numpy as np
+rcParams['figure.figsize'] = [20, 4]
+rcParams['font.size'] =15
+rcParams['axes.spines.top'] = False
+rcParams['axes.spines.right'] = False
+rcParams['figure.autolayout'] = True
+
+from matplotlib import pyplot as plt
+
+def chosen_direction(session_number,nareas,flag,log_reg = 'LogisticRegression(penalty = "none", max_iter = 300)'):
+  #session_number --> to retrieve data from alldat
+  #mov_onset --> array, movement onset of  the same session
+  #nareas --> int, how many areas we want (4 means the first four of the list..)
+
+  dat=alldat[session_number] # taking session
+  nneurons = len(dat['brain_area']) 
+  spikes = dat['spks']
+
+  barea = nareas * np.ones(nneurons, ) # last one is "other"
+  regions = ["motor ctx","vis ctx", "thal", "hipp", "other ctx", "midbrain", "basal ganglia", "cortical subplate", "other"]
+  brain_groups = [#["MOp"], #motor
+                ["VISa", "VISam", "VISl", "VISp", "VISpm", "VISrl"], # visual cortex
+                ["CL", "LD", "LGd", "LH", "LP", "MD", "MG", "PO", "POL", "PT", "RT", "SPF", "TH", "VAL", "VPL", "VPM"], # thalamus
+                ["CA", "CA1", "CA2", "CA3", "DG", "SUB", "POST"], # hippocampal
+                ["ACA", "AUD", "COA", "DP", "ILA", "MOp", "MOs", "OLF", "ORB", "ORBm", "PIR", "PL", "SSp", "SSs", "RSP"," TT"], # non-visual cortex
+                ["APN", "IC", "MB", "MRN", "NB", "PAG", "RN", "SCs", "SCm", "SCig", "SCsg", "ZI"], # midbrain
+                ["ACB", "CP", "GPe", "LS", "LSc", "LSr", "MS", "OT", "SNr", "SI"], # basal ganglia 
+                ["BLA", "BMA", "EP", "EPd", "MEA"] # cortical subplate
+                ]
+
+  for j in range(nareas):
+    barea[np.isin(dat['brain_area'], brain_groups[j])] = j # assign a number to each region
+  before_onset= 50
+
+  #print(spikes.shape)
+
+  window_spks = np.zeros((spikes.shape[0],spikes.shape[1], 2*before_onset)) #like spks but 50 samples
+  direction,mov_onset=extract_behaviours(session_number,5)
+
+  for i in range(0,len(mov_onset)):
+    if  mov_onset[i] == 0:
+      window = np.arange(0,2*before_onset-1) #if there no movement we  keep the first values (..they will be deleted later..)   
+    else:  
+      window = np.arange(int(mov_onset[i])-before_onset, int(mov_onset[i]+before_onset)) #before_onset samples
+      window_spks [:,i,:] = spikes[:, i, window]
+
+
+  idx_notzero = np.argwhere(mov_onset != 0) #mov_onset = 0, these trials are deleted in behavioral and neural data
+  new_mov_onset = mov_onset[mov_onset != 0]
+  new_direction=direction[mov_onset !=0]
+  new_direction[new_direction == -1] = 0 #to have 0 1 instead of -1 1
+
+  #plt.plot(new_mov_onset)
+  z=0
+  
+  for j in range(nareas):
+    new_dat =  window_spks[:,idx_notzero[:,0],:] #delete where there no movement
+    new_dat_onearea = new_dat[barea == j] #one area
+    print(new_dat_onearea.shape)
+    
+    if new_dat_onearea.shape[0] != 0:
+      if flag == 'P':
+        log_reg = LogisticRegression(penalty = "none", max_iter = 400) #penalty????
+        log_reg.fit(new_dat_onearea.mean(axis=0),new_direction)
+
+      yhat=log_reg.predict(new_dat_onearea.mean(axis=0))
+      accuracy=(new_direction == yhat).mean()
+      print(accuracy)
+    
+
+      #print(results.summary())
+      ax = plt.subplot(2,nareas,z+1)
+      plt.title(regions[j])
+      plt.plot(yhat)  
+      plt.plot(new_direction)
+      ax = plt.subplot(2,nareas,z+1+nareas)
+      plt.title(regions[j])
+      plt.plot(new_direction-yhat)
+      z=z+1
+
+      cm = confusion_matrix(new_direction, yhat)
+
+      fig, ax = plt.subplots(figsize=(8, 8))
+      ax.imshow(cm)
+      ax.grid(False)
+      ax.xaxis.set(ticks=(0, 1), ticklabels=('Predicted 0s', 'Predicted 1s'))
+      ax.yaxis.set(ticks=(0, 1), ticklabels=('Actual 0s', 'Actual 1s'))
+      ax.set_ylim(1.5, -0.5)
+      for i in range(2):
+          for k in range(2):
+              ax.text(k, i, cm[i, k], ha='center', va='center', color='red')
+      plt.show()
+      
+      print(classification_report(new_direction, yhat))
+      
+      return log_reg
+
+
+log_reg_motor = chosen_direction(21,1,'P')
+
+log_reg_motor_predict = chosen_direction(26,1,'F',log_reg_motor)
+#log_reg_motor_predict2 = chosen_direction(2,1,'F',log_reg_motor)
