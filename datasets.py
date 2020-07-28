@@ -36,11 +36,11 @@ def brain_areas(dat, nareas = 7):
     for j in range(nareas):
         barea[np.isin(dat['brain_area'], brain_groups[j])] = j # assign a number to each region
     
-    dat['brain_region'] = np.array(['other' for i in barea])
+    neuron_region = np.array(['other' for i in barea])
     for area in barea:
-        dat['brain_region'][barea==area] = regions[int(area)]
+        neuron_region[barea==area] = regions[int(area)]
     
-    return dat
+    return neuron_region
 
 def get_mov_onset(dat, stim=50, threshold=5):
     wheel=dat['wheel']
@@ -70,12 +70,7 @@ def get_mov_onset(dat, stim=50, threshold=5):
             onset_gocue.append(np.sign(mov_onset[-1]-sample_go))
             direction.append(np.sign(wheel_trial[idx[0]]))
     
-    dat['mov_onset'] = np.array(mov_onset) # in bins 
-    dat['trials_NoWheel'] = np.array(trial_NoWheel) # trial indices
-    dat['mov_direction'] = np.array(direction)
-    dat['onset_gocue'] = np.array(onset_gocue)
-    
-    return dat
+    return np.array(mov_onset), np.array(trial_NoWheel), np.array(direction), np.array(onset_gocue)
 
 def plot_mov_onset(dat, trial_num):
     
@@ -110,20 +105,28 @@ def spikes_before_mov_onset(dat, n_bins=50):
             trial = spks_trials_moving[:,i,int(onset-n_bins):int(onset)].reshape(-1,1,50)
             spks_b4_mov = np.hstack((spks_b4_mov,trial))
 
-    
-    dat['spks_b4_mov'] = spks_b4_mov
-    return dat
+    return spks_b4_mov
 
-    
+    def dataset_brain_region(alldat, region):
+        # regions = ["vis ctx", "thal", "hipp", "other ctx", "midbrain", "basal ganglia", "cortical subplate", "other"]
+
+        for session_num in range(len(alldat)):
+            dat = alldat[session_num]
+            dat['brain_region'] = brain_areas(dat)
+            dat['mov_onset'], dat['trials_NoWheel'], dat['mov_direction'], dat['onset_gocue']  = get_mov_onset(dat)
+            dat['spks_b4_mov'] = spikes_before_mov_onset(dat)
+            regions_mov_trials = np.delete(dat['brain_region'],dat['trials_NoWheel'])
+            if session_num == 0:
+                spks_b4_mov_region = dat['spks_b4_mov'][:,regions_mov_trials==region,:]
+            else:
+                spks_b4_mov_region = np.hstack((spks_b4_mov_region, dat['spks_b4_mov'][:,regions_mov_trials==region,:]))
+        
+        return spks_b4_mov_region
 
 
 if __name__ == "__main__":
 
     alldat = load_data()
-    session_num = 1
-    dat = alldat[1]
-    dat = brain_areas(dat)
-    dat = get_mov_onset(dat)
-    dat = spikes_before_mov_onset(dat)
+    dataset_BG = dataset_brain_region(alldat, "basal ganglia")
     
     orel = 1
