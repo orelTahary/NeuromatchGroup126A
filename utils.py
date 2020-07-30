@@ -195,17 +195,18 @@ def chosen_direction(alldat, session_number, nareas, brain_groups, flag, flag_y,
           matrix_el[tr,pc*window_size:(window_size-1)+(pc*window_size)]=no_matrix_el[pc,tr*window_size:(window_size-1)+tr*window_size]
       # matrix_el=np.reshape(matrix_el, (new_dat_onearea.shape[1],-1))
       print(matrix_el.shape)
-
+    # coefs = []
     # Apply logistic regression and cross validation
     if new_dat_onearea.shape[0] != 0:
       kf = 4 #k fold
       logistic = cross_validate(LogisticRegression(penalty = "l2", max_iter = 300, class_weight='balanced'), matrix_el, y=y, cv=kf,  return_train_score=True, return_estimator=True) # k=8 crossvalidation
 
+      # [coefs.append(model.coef_) for model in logistic['estimator']]
       # print(logistic['estimator'][1].coef_) #take the coeff of each model
       print('training mean accuracy =',logistic['train_score'].mean())
       print('test mean accuracy =',logistic['test_score'].mean())
     
-    return logistic['test_score'].mean()
+    return logistic['test_score'].mean(), logistic['estimator'][1].coef_
 
 # Brain areas considered
 # areas=[["MOs"]]#["GPe","PL","SNr","ACA","VPL","ILA","ZI","MOs"]]
