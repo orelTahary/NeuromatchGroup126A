@@ -36,7 +36,7 @@ def raster_plot(session_num,region,trial_num):
 
   for i in range(neurons_spikes_times.shape[0]): # Fixing the problems with the data -- some points are doubled than original value i.e expected: 2.23 seen: 4.46 -- 
     for j in range(neurons_spikes_times.shape[1]):
-      if neurons_spikes_times[i,j]*100==2*j:
+      if neurons_spikes_times[i,j]>=2.5:
         neurons_spikes_times[i,j]=neurons_spikes_times[i,j]/2
   
   plt.eventplot(neurons_spikes_times,linelengths=0.3) # raster plot
@@ -45,7 +45,7 @@ def raster_plot(session_num,region,trial_num):
 
 
 # Check the function by uncommenting the next line
-# Checking for 12th session, 256th trials' subiculum(SUB) neurons firing
+# Checking for 12th session, 256th trial's subiculum(SUB) neurons firing
 # raster_plot(11,'SUB',256)
 
-# Issues: spikes at 0s;  spikes after 2.5s
+# Issues: spikes at 0s (not solved);  spikes after 2.5s (solved)
